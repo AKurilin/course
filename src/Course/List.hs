@@ -92,11 +92,9 @@ product (x :. xs) = x * product xs
 -- 10
 --
 -- prop> foldLeft (-) (sum x) x == 0
-sum ::
-  List Int
-  -> Int
-sum =
-  error "todo"
+
+sum :: List Int -> Int
+sum xs = foldRight (+) 0 xs
 
 -- | Return the length of the list.
 --
@@ -104,11 +102,9 @@ sum =
 -- 3
 --
 -- prop> sum (map (const 1) x) == length x
-length ::
-  List a
-  -> Int
-length =
-  error "todo"
+length :: List a -> Int
+length Nil       = 0
+length (_ :. xs) = 1 + length xs
 
 -- | Map the given function on each element of the list.
 --
@@ -118,12 +114,9 @@ length =
 -- prop> headOr x (map (+1) infinity) == 1
 --
 -- prop> map id x == x
-map ::
-  (a -> b)
-  -> List a
-  -> List b
-map =
-  error "todo"
+map :: (a -> b) -> List a -> List b
+map _ Nil = Nil
+map f (x :. xs)  = (f x) :. (map f xs)
 
 -- | Return elements satisfying the given predicate.
 --
