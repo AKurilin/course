@@ -235,12 +235,12 @@ seqOptional l = let sane = isSane l
 --
 -- >>> find (const True) infinity
 -- Full 0
-find ::
-  (a -> Bool)
-  -> List a
-  -> Optional a
-find =
-  error "todo"
+
+find :: (a -> Bool) -> List a -> Optional a
+find _ Nil = Empty
+find p (x :. xs) = if p x
+                   then Full x
+                   else find p xs
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -255,11 +255,15 @@ find =
 --
 -- >>> lengthGT4 infinity
 -- True
-lengthGT4 ::
-  List a
-  -> Bool
-lengthGT4 =
-  error "todo"
+
+lenHelper :: List a -> Int -> Bool
+lenHelper Nil _ = False
+lenHelper (_ :. xs) n   = if n+1 > 4
+                          then True
+                          else lenHelper xs (n+1)
+
+lengthGT4 :: List a -> Bool
+lengthGT4 l = lenHelper l 0
 
 -- | Reverse a list.
 --
@@ -269,11 +273,13 @@ lengthGT4 =
 -- prop> let types = x :: List Int in reverse x ++ reverse y == reverse (y ++ x)
 --
 -- prop> let types = x :: Int in reverse (x :. Nil) == x :. Nil
-reverse ::
-  List a
-  -> List a
-reverse =
-  error "todo"
+
+reverseHelper :: List a -> List a-> List a
+reverseHelper Nil acc = acc
+reverseHelper (x :. xs) acc = reverseHelper xs ((x :. Nil) ++ acc)
+
+reverse :: List a -> List a
+reverse l = reverseHelper l Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -283,12 +289,11 @@ reverse =
 --
 -- >>> let (x:.y:.z:.w:._) = produce (*2) 1 in [x,y,z,w]
 -- [1,2,4,8]
-produce ::
-  (a -> a)
-  -> a
-  -> List a
-produce =
-  error "todo"
+prodHelper :: (a -> a) -> a -> List a
+prodHelper f b = b :. prodHelper f (f b)
+
+produce :: (a -> a) -> a -> List a
+produce f b = prodHelper f b
 
 -- | Do anything other than reverse a list.
 -- Is it even possible?
@@ -299,11 +304,8 @@ produce =
 -- prop> let types = x :: List Int in notReverse x ++ notReverse y == notReverse (y ++ x)
 --
 -- prop> let types = x :: Int in notReverse (x :. Nil) == x :. Nil
-notReverse ::
-  List a
-  -> List a
-notReverse =
-  error "todo"
+notReverse :: List a -> List a
+notReverse = reverse -- no idea what this means
 
 hlist ::
   List a
