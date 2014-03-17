@@ -215,8 +215,8 @@ isSane (Full _ :. xs) = isSane xs
 seqOptional :: List (Optional a) -> Optional (List a)
 seqOptional l = let sane = isSane l
                 in if sane
-                then Full (map extractFull l)
-                else Empty
+                   then Full (map extractFull l)
+                   else Empty
 
 
 -- | Find the first element in the list matching the predicate.
