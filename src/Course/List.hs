@@ -128,12 +128,11 @@ map f (x :. xs)  = (f x) :. (map f xs)
 -- prop> filter (const True) x == x
 --
 -- prop> filter (const False) x == Nil
-filter ::
-  (a -> Bool)
-  -> List a
-  -> List a
-filter =
-  error "todo"
+filter :: (a -> Bool) -> List a -> List a
+filter _ Nil          = Nil
+filter p (x :. xs) = if p x
+                        then x :. filter p xs
+                        else filter p xs
 
 -- | Append two lists to a new list.
 --
@@ -147,12 +146,8 @@ filter =
 -- prop> (x ++ y) ++ z == x ++ (y ++ z)
 --
 -- prop> x ++ Nil == x
-(++) ::
-  List a
-  -> List a
-  -> List a
-(++) =
-  error "todo"
+(++) :: List a -> List a -> List a
+(++) la lb = foldRight (:.) lb la
 
 infixr 5 ++
 
@@ -166,11 +161,9 @@ infixr 5 ++
 -- prop> headOr x (flatten (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> sum (map length x) == length (flatten x)
-flatten ::
-  List (List a)
-  -> List a
-flatten =
-  error "todo"
+flatten :: List (List a) -> List a
+flatten Nil = Nil
+flatten xs = foldRight (++) Nil xs
 
 -- | Map a function then flatten to a list.
 --
@@ -182,12 +175,9 @@ flatten =
 -- prop> headOr x (flatMap id (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> flatMap id (x :: List (List Int)) == flatten x
-flatMap ::
-  (a -> List b)
-  -> List a
-  -> List b
-flatMap =
-  error "todo"
+flatMap :: (a -> List b) -> List a -> List b
+flatMap f l = let mapped = map f l
+              in foldRight (++) Nil mapped
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -211,11 +201,23 @@ flatMap =
 --
 -- >>> seqOptional (Empty :. map Full infinity)
 -- Empty
-seqOptional ::
-  List (Optional a)
-  -> Optional (List a)
-seqOptional =
-  error "todo"
+
+extractFull :: Optional a -> a
+extractFull (Full a) = a
+extractFull Empty = undefined
+
+-- loop until encounter an empty, otherwise loop forever...
+isSane :: List (Optional a) -> Bool
+isSane Nil            = True
+isSane (Empty :. _)   = False
+isSane (Full _ :. xs) = isSane xs
+
+seqOptional :: List (Optional a) -> Optional (List a)
+seqOptional l = let sane = isSane l
+                in if sane
+                then Full (map extractFull l)
+                else Empty
+
 
 -- | Find the first element in the list matching the predicate.
 --
