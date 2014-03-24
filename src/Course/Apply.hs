@@ -12,10 +12,7 @@ import qualified Prelude as P
 
 class Functor f => Apply f where
   -- Pronounced apply.
-  (<*>) ::
-    f (a -> b)
-    -> f a
-    -> f b
+  (<*>) :: f (a -> b) -> f a -> f b
 
 infixl 4 <*>
 
@@ -24,16 +21,15 @@ infixl 4 <*>
 -- >>> Id (+10) <*> Id 8
 -- Id 18
 instance Apply Id where
-  (<*>) =
-    error "todo"
+  (<*>) (Id fn) (Id a) = Id (fn a)
 
 -- | Implement @Apply@ instance for @List@.
 --
 -- >>> (+1) :. (*2) :. Nil <*> 1 :. 2 :. 3 :. Nil
 -- [2,3,4,2,4,6]
 instance Apply List where
-  (<*>) =
-    error "todo"
+  (<*>) Nil _ = Nil
+  (<*>) (fn :. fns) list = (map fn list) ++ (fns <*> list)
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -46,8 +42,9 @@ instance Apply List where
 -- >>> Full (+8) <*> Empty
 -- Empty
 instance Apply Optional where
-  (<*>) =
-    error "todo"
+  (<*>) (Full fn) (Full a) = Full $ fn a
+  (<*>) _ Empty            = Empty
+  (<*>) Empty _            = Empty
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -66,8 +63,7 @@ instance Apply Optional where
 -- >>> ((*) <*> (+2)) 3
 -- 15
 instance Apply ((->) t) where
-  (<*>) =
-    error "todo"
+  (<*>) = error "todo" -- (<*>) fn1 fn2 num = fn2 (fn1 num num)
 
 -- | Apply a binary function in the environment.
 --

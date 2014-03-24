@@ -54,7 +54,7 @@ instance Functor Optional where
 -- >>> ((+1) <$> (*2)) 8
 -- 17
 instance Functor ((->) t) where
-  (<$>) f g x = f $ g x
+  (<$>) fn1 fn2 num = fn1 (fn2 num)
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
@@ -64,13 +64,8 @@ instance Functor ((->) t) where
 -- prop> x <$ [a,b,c] == [x,x,x]
 --
 -- prop> x <$ Full q == Full x
-(<$) ::
-  Functor f =>
-  a
-  -> f b
-  -> f a
-(<$) =
-  error "todo"
+(<$) :: Functor f => a -> f b -> f a
+(<$) a b = (const a) <$> b
 
 -- | Anonymous map producing unit value.
 --
@@ -85,12 +80,8 @@ instance Functor ((->) t) where
 --
 -- >>> void (+10) 5
 -- ()
-void ::
-  Functor f =>
-  f a
-  -> f ()
-void =
-  error "todo"
+void :: Functor f => f a -> f ()
+void funct = (const ()) <$> funct
 
 -----------------------
 -- SUPPORT LIBRARIES --
@@ -111,3 +102,5 @@ instance Functor [] where
 instance Functor P.Maybe where
   (<$>) =
     P.fmap
+
+-- (<$>) f g x = f $ g x
